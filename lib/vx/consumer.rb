@@ -36,7 +36,7 @@ module Vx
       end
 
       def exchange(*args)
-        params.exchange_options = args.last.is_a?(Hash) ? args.pop : {}
+        params.exchange_options = args.last.is_a?(Hash) ? args.pop : nil
         params.exchange_name    = args.first
       end
 
@@ -49,7 +49,7 @@ module Vx
       end
 
       def queue(*args)
-        params.queue_options = args.last.is_a?(Hash) ? args.pop : {}
+        params.queue_options = args.last.is_a?(Hash) ? args.pop : nil
         params.queue_name    = args.first
       end
 

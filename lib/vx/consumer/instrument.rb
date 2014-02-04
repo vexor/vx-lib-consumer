@@ -3,7 +3,7 @@ module Vx
     module Instrument
 
       def instrument(name, payload, &block)
-        name = "#{name}.consumer.vexor"
+        name = "#{name}.consumer.vx"
 
         if Consumer.configuration.debug?
           $stdout.puts " --> #{name}: #{payload}"
