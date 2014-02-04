@@ -35,7 +35,7 @@ module Vx
                   sleep 0.01
                 end
               rescue Bunny::ChannelError, Bunny::ClientTimeout => e
-                $stderr.puts "got #{e.class} #{e.message} in Vx::Consumer::Session#close"
+                Consumer.exception_handler(e, {})
               end
             end
             @conn = nil
