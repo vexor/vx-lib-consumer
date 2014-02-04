@@ -55,7 +55,11 @@ module Vx
 
       define 'application/json' do
         pack do |body|
-          ::JSON.dump body
+          if body.is_a?(String)
+            body
+          else
+            ::JSON.dump body
+          end
         end
 
         unpack do |payload, model|

@@ -58,7 +58,7 @@ describe Vx::Consumer do
         end
       end
 
-      Timeout.timeout(3) do
+      Timeout.timeout(10) do
         loop do
           break if Bob._collected.size == 90
           sleep 0.1
