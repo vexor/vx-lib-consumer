@@ -11,7 +11,7 @@ describe Vx::Consumer do
       its(:exchange_options) { should eq(durable: true, auto_delete: false, type: :fanout) }
       its(:queue_name)       { should eq '' }
       its(:queue_options)    { should eq(exclusive: false, durable: true, auto_delete: false) }
-      its(:ack)              { should be_true }
+      its(:ack)              { should be_false }
       its(:routing_key)      { should eq 'mykey' }
       its(:headers)          { should be_nil }
       its(:content_type)     { should eq 'text/plain' }
@@ -34,7 +34,7 @@ describe Vx::Consumer do
     sleep 1
     3.times {|n| Bob.publish("a" => n) }
 
-    Timeout.timeout(1) do
+    Timeout.timeout(3) do
       loop do
         break if Bob._collected.size == 3
         sleep 0.1
@@ -46,26 +46,28 @@ describe Vx::Consumer do
   end
 
   it "pub/sub in multithreaded environment" do
-    cns = []
-    30.times do
-      cns << Bob.subscribe
-    end
-
-    90.times do |n|
-      Thread.new do
-        Bob.publish("a" => n)
+    handle_errors do
+      cns = []
+      30.times do
+        cns << Bob.subscribe
       end
-    end
 
-    Timeout.timeout(3) do
-      loop do
-        break if Bob._collected.size == 90
-        sleep 0.1
+      90.times do |n|
+        Thread.new do
+          Bob.publish("a" => n)
+        end
       end
-    end
-    cns.map(&:cancel)
 
-    expect(Bob._collected.map{|c| c["a"] }.sort).to eq((0...90).to_a)
+      Timeout.timeout(3) do
+        loop do
+          break if Bob._collected.size == 90
+          sleep 0.1
+        end
+      end
+      cns.map(&:cancel)
+
+      expect(Bob._collected.map{|c| c["a"] }.sort).to eq((0...90).to_a)
+    end
   end
 
   it "should catch errors" do
@@ -101,6 +103,14 @@ describe Vx::Consumer do
     end
 
     expect(Bob._collected).to eq(["a" => 1])
+  end
 
+  def handle_errors
+    begin
+      yield
+    rescue Exception => e
+      Vx::Consumer.exception_handler(e, {})
+      raise e
+    end
   end
 end

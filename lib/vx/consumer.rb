@@ -40,8 +40,12 @@ module Vx
         params.exchange_name    = args.first
       end
 
-      def type(exch_type)
-        params.exchange_type = exch_type
+      def fanout
+        params.exchange_type = :fanout
+      end
+
+      def topic
+        params.exchange_type = :topic
       end
 
       def queue(*args)
@@ -61,8 +65,8 @@ module Vx
         params.content_type = value
       end
 
-      def ack(value)
-        params.ack = value
+      def ack
+        params.ack = true
       end
 
       def model(value)

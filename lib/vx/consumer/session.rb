@@ -31,11 +31,11 @@ module Vx
             instrument("close_collection", info: conn_info) do
               begin
                 conn.close
-              rescue Bunny::ChannelError => e
-                $stderr.puts "got: #{e.class} #{e.message}"
-              end
-              while conn.status != :closed
-                sleep 0.01
+                while conn.status != :closed
+                  sleep 0.01
+                end
+              rescue Bunny::ChannelError, Bunny::ClientTimeout => e
+                $stderr.puts "got #{e.class} #{e.message} in Vx::Consumer::Session#close"
               end
             end
             @conn = nil

@@ -5,8 +5,8 @@ class Alice
 
   content_type 'text/plain'
   routing_key 'mykey'
-  type :fanout
-  ack true
+
+  fanout
 
 end
 
@@ -15,7 +15,7 @@ class Bob
 
   exchange 'bob_exch',  durable: false, auto_delete: true
   queue    'bob_queue', exclusive: true, durable: false
-  ack      true
+  ack
 
   @@m         = Mutex.new
   @@collected = []
