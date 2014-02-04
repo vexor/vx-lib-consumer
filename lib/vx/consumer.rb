@@ -5,6 +5,7 @@
   instrument
   session
   params
+  serializer
   publish
 }.each do |f|
   require File.expand_path("../consumer/#{f}", __FILE__)
@@ -52,6 +53,10 @@ module Vx
 
       def ack(value)
         params.ack = value
+      end
+
+      def model(value)
+        params.model = value
       end
 
       def session

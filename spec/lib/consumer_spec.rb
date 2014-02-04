@@ -28,4 +28,8 @@ describe Vx::Consumer do
     end
   end
 
+  context "publish" do
+    
+  end
+
 end

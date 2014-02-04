@@ -8,6 +8,7 @@ module Vx
       attr_accessor :content_type
       attr_accessor :ack
       attr_accessor :exchange_type
+      attr_accessor :model
 
       def exchange_name
         @exchange_name || default_exchange_name
