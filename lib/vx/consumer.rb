@@ -114,6 +114,9 @@ module Vx
     def exception_handler(e, env)
       $stderr.puts "#{e.class}: #{e.message}, env: #{env.inspect}"
       $stderr.puts e.backtrace.map{|b| "\t#{b}" }.join("\n")
+      unless env.is_a?(Hash)
+        env = {env: env}
+      end
       configuration.on_error.call(e, env)
     end
 
