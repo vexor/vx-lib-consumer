@@ -6,7 +6,10 @@
   session
   params
   serializer
+  subscriber
   publish
+  subscribe
+  ack
 }.each do |f|
   require File.expand_path("../consumer/#{f}", __FILE__)
 end
@@ -14,10 +17,17 @@ end
 module Vx
   module Consumer
 
+    attr_accessor :properties
+    attr_accessor :delivery_info
+    attr_accessor :channel
+
     def self.included(base)
       base.extend ClassMethods
-      base.extend Publish
       base.extend Instrument
+      base.extend Publish
+      base.extend Subscribe
+      base.send :include, Ack
+      base.send :include, Instrument
     end
 
     module ClassMethods
@@ -62,6 +72,14 @@ module Vx
       def session
         Consumer.session
       end
+
+      def configuration
+        Consumer.configuration
+      end
+
+      def with_middlewares(name, env, &block)
+        Consumer.configuration.builders[name].to_app(block).call(env)
+      end
     end
 
     extend self
@@ -87,6 +105,12 @@ module Vx
 
     def session
       @@session
+    end
+
+    def exception_handler(e, env)
+      $stderr.puts "#{e.class}: #{e.message}, env: #{env.inspect}"
+      $stderr.puts e.backtrace.map{|b| "\t#{b}" }.join("\n")
+      configuration.on_error.call(e, env)
     end
 
   end

@@ -55,14 +55,14 @@ module Vx
 
       define 'application/json' do
         pack do |body|
-          JSON.dump body
+          ::JSON.dump body
         end
 
         unpack do |payload, model|
           if model && model.respond_to?(:from_json)
             model.from_json payload
           else
-            JSON.parse(payload)
+            ::JSON.parse(payload)
           end
         end
       end

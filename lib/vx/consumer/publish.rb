@@ -4,33 +4,41 @@ module Vx
   module Consumer
     module Publish
 
-      def publish(payload, options)
+      def publish(payload, options = {})
         session.open
 
         options ||= {}
         options[:routing_key]  = params.routing_key if params.routing_key && !options.key?(:routing_key)
         options[:headers]      = params.headers     if params.headers && !options.key?(:headers)
 
-        options[:content_type] ||= params.content_type || Consumer.configuration.content_type
+        options[:content_type] ||= params.content_type || configuration.content_type
         options[:message_id]   ||= SecureRandom.uuid
 
         name = params.exchange_name
 
         instrumentation = {
           payload:     payload,
-          exchange:    x.name,
+          exchange:    name,
           consumer:    params.consumer_name,
           properties:  options,
         }
 
-        instrument("process_publishing", instrumentation) do
-          session.with_channel do |ch|
-            x = session.declare_exchange ch, name
-            x.publish payload, options
+        with_middlewares :pub, instrumentation do
+          instrument("process_publishing", instrumentation) do
+            session.with_channel do |ch|
+              encoded = encode_payload(payload, options[:content_type])
+              x = session.declare_exchange ch, name, params.exchange_options
+              x.publish encoded, options
+            end
           end
         end
-
       end
+
+      private
+
+        def encode_payload(payload, content_type)
+          Serializer.pack(content_type, payload)
+        end
 
     end
   end

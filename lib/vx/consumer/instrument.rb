@@ -6,7 +6,7 @@ module Vx
         name = "#{name}.consumer.vexor"
 
         if Consumer.configuration.debug?
-          $stdout.puts "#{name}: #{payload.inspect}"
+          $stdout.puts " --> #{name}: #{payload}"
         end
 
         if Consumer.configuration.instrumenter

@@ -31,7 +31,7 @@ module Vx
       end
 
       def exchange_options
-        @exchange_options || config.default_exchange_options
+        (@exchange_options || config.default_exchange_options).merge(type: exchange_type)
       end
 
       def queue_options
@@ -40,6 +40,17 @@ module Vx
 
       def publish_options
         config.default_publish_options
+      end
+
+      def bind_options
+        opts = { }
+        opts.merge!(routing_key: routing_key) if routing_key
+        opts.merge!(headers: headers) if headers
+        opts
+      end
+
+      def consumer_name
+        consumer_class.to_s
       end
 
       private

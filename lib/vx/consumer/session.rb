@@ -48,7 +48,7 @@ module Vx
 
         @@session_lock.synchronize do
           unless open?
-            self.class.resume
+            resume
 
             @conn ||= Bunny.new(
               nil,       # from ENV['RABBITMQ_URL']
@@ -94,31 +94,17 @@ module Vx
         assert_connection_is_open
 
         options  ||= {}
-        name     ||= config.default_exchange_name
-        type, opts = get_exchange_type_and_options options
-        ch.exchange name, opts.merge(type: type)
+        ch.exchange name, options
       end
 
       def declare_queue(ch, name, options = nil)
         assert_connection_is_open
 
         options ||= {}
-        name, opts = get_queue_name_and_options(name, options)
-        ch.queue name, opts
+        ch.queue name, options
       end
 
       private
-
-        def get_exchange_type_and_options(options)
-          options = config.default_exchange_options.merge(options || {})
-          type = options.delete(:type) || config.default_exchange_type
-          [type, options]
-        end
-
-        def get_queue_name_and_options(name, options)
-          name  ||= AMQ::Protocol::EMPTY_STRING
-          [name, config.default_queue_options.merge(options || {})]
-        end
 
         def assert_connection_is_open
           open? || raise(ConnectionDoesNotExistError)

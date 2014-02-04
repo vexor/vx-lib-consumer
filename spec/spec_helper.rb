@@ -13,6 +13,7 @@ RSpec.configure do |config|
   end
 
   config.after(:each) do
-    Vx::Consumer.shutdown
+    Vx::Consumer.session.close
+    Bob._reset
   end
 end

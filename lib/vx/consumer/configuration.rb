@@ -21,6 +21,11 @@ module Vx
         @builders[target].use middleware, *args
       end
 
+      def on_error(&block)
+        @on_error = block if block
+        @on_error
+      end
+
       def reset!
         @default_exchange_type = :topic
         @pool_timeout          = 0.5
