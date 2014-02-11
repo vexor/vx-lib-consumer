@@ -1,24 +1,49 @@
+require 'thread'
+require 'bunny/consumer'
+
 module Vx
   module Consumer
-    Subscriber = Struct.new(:consumer) do
+    class Subscriber < Bunny::Consumer
+
+      include Instrument
+
+      attr_accessor :vx_consumer_name
+
+      def initialize(*args)
+        super(*args)
+        @lock = Mutex.new
+      end
+
+      def graceful_shutdown
+        instrument('graceful_shutdown_consumer', consumer: vx_consumer_name)
+        in_progress { cancel }
+      end
+
+      def in_progress
+        @lock.synchronize do
+          yield
+        end
+      end
+
+      def call(*args)
+        in_progress do
+          @on_delivery.call(*args) if @on_delivery
+        end
+      end
 
       def cancel
-        consumer.cancel
-        consumer.channel.close unless consumer.channel.closed?
+        instrument('cancel_consumer', consumer: vx_consumer_name)
+        super
+        channel.close unless channel.closed?
       end
 
       def join
-        consumer.channel.work_pool.join
+        channel.work_pool.join
       end
 
-      def wait
-        loop do
-          if Consumer.shutdown?
-            cancel
-            break
-          end
-          sleep Consumer.configuration.pool_timeout
-        end
+      def wait_shutdown
+        Consumer.wait_shutdown
+        cancel
       end
 
     end

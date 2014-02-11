@@ -8,8 +8,8 @@ module Vx
           properties:    properties,
           multiple:      multiple,
         }
-        if channel.open?
-          channel.ack delivery_info.delivery_tag, multiple
+        if _channel.open?
+          _channel.ack delivery_info.delivery_tag, multiple
           instrument("ack", instrumentation)
           true
         else
@@ -25,8 +25,8 @@ module Vx
           multiple:      multiple,
           requeue:       requeue,
         }
-        if channel.open?
-          channel.ack delivery_info.delivery_tag, multiple, requeue
+        if _channel.open?
+          _channel.ack delivery_info.delivery_tag, multiple, requeue
           instrument("nack", instrumentation)
           true
         else

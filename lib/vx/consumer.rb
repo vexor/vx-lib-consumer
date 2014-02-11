@@ -19,7 +19,7 @@ module Vx
 
     attr_accessor :properties
     attr_accessor :delivery_info
-    attr_accessor :channel
+    attr_accessor :_channel
 
     def self.included(base)
       base.extend ClassMethods
@@ -95,8 +95,12 @@ module Vx
       session.shutdown
     end
 
-    def shutdown?
-      session.shutdown?
+    def live?
+      session.live?
+    end
+
+    def wait_shutdown(timeout = nil)
+      session.wait_shutdown(timeout)
     end
 
     def configure

@@ -93,9 +93,9 @@ describe Vx::Consumer do
     Bob.publish a: 1
 
     th = Thread.new {
-      consumer.wait
+      consumer.wait_shutdown
     }
-    sleep 1
+    sleep 0.2
     Vx::Consumer.shutdown
 
     Timeout.timeout(1) do
@@ -103,6 +103,21 @@ describe Vx::Consumer do
     end
 
     expect(Bob._collected).to eq(["a" => 1])
+  end
+
+  it "should work with graceful shutdown" do
+    consumer = Bob.subscribe
+    10.times do |n|
+      Bob.publish a: n
+    end
+
+    sleep 0.2
+    Timeout.timeout(1) do
+      consumer.graceful_shutdown
+    end
+
+    expect(Bob._collected).to have_at_least(2).item
+    expect(Bob._collected).to have_at_most(8).item
   end
 
   def handle_errors
