@@ -4,31 +4,44 @@ module Vx
 
       def subscribe
         ch, q = bind
-        bunny_consumer = q.subscribe(block: false, ack: params.ack) do |delivery_info, properties, payload|
-          payload = decode_payload properties, payload
 
-          instrumentation = {
-            consumer:   params.consumer_name,
-            payload:    payload,
-            properties: properties,
-          }
+        subscriber = Subscriber.new(
+          ch,
+          q,
+          ch.generate_consumer_tag,
+          !params.ack
+        )
+        subscriber.vx_consumer_name = params.consumer_name
 
-          with_middlewares :sub, instrumentation do
-            instrument("start_processing", instrumentation)
-            instrument("process", instrumentation) do
-              run_instance delivery_info, properties, payload, ch
-            end
-          end
+        subscriber.on_delivery do |delivery_info, properties, payload|
+          handle_delivery ch, delivery_info, properties, payload
         end
 
-        Subscriber.new(bunny_consumer)
+        q.subscribe_with(subscriber)
+      end
+
+      def handle_delivery(channel, delivery_info, properties, payload)
+        payload = decode_payload properties, payload
+
+        instrumentation = {
+          consumer:   params.consumer_name,
+          payload:    payload,
+          properties: properties,
+        }
+
+        with_middlewares :sub, instrumentation do
+          instrument("start_processing", instrumentation)
+          instrument("process", instrumentation) do
+            run_instance delivery_info, properties, payload, channel
+          end
+        end
       end
 
       def run_instance(delivery_info, properties, payload, channel)
         new.tap do |inst|
           inst.properties    = properties
           inst.delivery_info = delivery_info
-          inst.channel       = channel
+          inst._channel      = channel
         end.perform payload
       end
 

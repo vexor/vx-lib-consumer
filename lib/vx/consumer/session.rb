@@ -7,20 +7,34 @@ module Vx
 
       include Instrument
 
-      @@session_lock = Mutex.new
+      @@session_lock  = Mutex.new
+
+      @@shutdown_lock = Mutex.new
+      @@shutdown      = ConditionVariable.new
+      @@live          = false
 
       attr_reader :conn
 
       def shutdown
-        @shutdown = true
+        @@shutdown_lock.synchronize do
+          @@live = false
+          @@shutdown.broadcast
+        end
       end
 
-      def shutdown?
-        !!@shutdown
+      def live?
+        @@live
       end
 
       def resume
-        @shutdown = false
+        @@live = true
+      end
+
+      def wait_shutdown(timeout = nil)
+        @@shutdown_lock.synchronize do
+          @@shutdown.wait(@@shutdown_lock, timeout)
+          not live?
+        end
       end
 
       def close
