@@ -4,6 +4,10 @@ require 'spec_helper'
 
 describe Vx::Consumer do
 
+  before do
+    Bob.timeout = 0.1
+  end
+
   context "test consumer declaration" do
     context "alice" do
       subject { Alice.params }
@@ -107,20 +111,23 @@ describe Vx::Consumer do
   end
 
   it "should work with graceful shutdown" do
+    Bob.timeout = 1
+
     consumer = Bob.subscribe
     10.times do |n|
       Bob.publish a: n
     end
 
-    sleep 0.2
+    sleep 0.1
     Timeout.timeout(1) do
       consumer.graceful_shutdown
     end
 
-    expect(Bob._collected).to have_at_least(2).item
+    expect(Bob._collected).to have(1).item
   end
 
   it "running? should be true when consumer process task" do
+    Bob.timeout = 1
     consumer = Bob.subscribe
 
     expect(consumer.running?).to be_false

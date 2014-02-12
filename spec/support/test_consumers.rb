@@ -21,6 +21,9 @@ class Bob
   @@collected = []
 
   class << self
+
+    attr_accessor :timeout
+
     def _collected
       @@collected
     end
@@ -40,7 +43,7 @@ class Bob
 
   def perform(payload)
     self.class._save payload
-    sleep 0.1
+    sleep self.class.timeout
     ack
   end
 end
