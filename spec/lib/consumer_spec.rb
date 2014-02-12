@@ -120,6 +120,25 @@ describe Vx::Consumer do
     expect(Bob._collected).to have_at_least(2).item
   end
 
+  it "running? should be true when consumer process task" do
+    consumer = Bob.subscribe
+
+    expect(consumer.running?).to be_false
+
+    10.times do |n|
+      Bob.publish a: n
+    end
+
+    sleep 0.1
+    expect(consumer.running?).to be_true
+
+    Timeout.timeout(1) do
+      consumer.cancel
+    end
+
+    expect(consumer.running?).to be_false
+  end
+
   def handle_errors
     begin
       yield

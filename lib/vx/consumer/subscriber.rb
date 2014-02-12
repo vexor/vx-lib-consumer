@@ -25,6 +25,10 @@ module Vx
         end
       end
 
+      def running?
+        @lock.locked?
+      end
+
       def call(*args)
         in_progress do
           @on_delivery.call(*args) if @on_delivery
