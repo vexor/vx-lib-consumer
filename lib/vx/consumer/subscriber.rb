@@ -42,8 +42,11 @@ module Vx
       end
 
       def wait_shutdown
-        Consumer.wait_shutdown
-        cancel
+        Thread.new do
+          Thread.current.abort_on_exception = true
+          Consumer.wait_shutdown
+          cancel
+        end
       end
 
     end

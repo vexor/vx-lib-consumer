@@ -89,20 +89,21 @@ describe Vx::Consumer do
   end
 
   it "should wait shutdown" do
-    consumer = Bob.subscribe
+    bob1 = Bob.subscribe
+    bob2 = Bob.subscribe
     Bob.publish a: 1
+    Bob.publish a: 2
 
-    th = Thread.new {
-      consumer.wait_shutdown
-    }
+    th1 = bob1.wait_shutdown
+    th2 = bob2.wait_shutdown
     sleep 0.2
     Vx::Consumer.shutdown
 
     Timeout.timeout(1) do
-      th.join
+      [th1, th2].map(&:join)
     end
 
-    expect(Bob._collected).to eq(["a" => 1])
+    expect(Bob._collected.map(&:values).flatten.sort).to eq [1,2]
   end
 
   it "should work with graceful shutdown" do
