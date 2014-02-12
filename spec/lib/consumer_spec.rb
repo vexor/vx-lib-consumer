@@ -118,7 +118,6 @@ describe Vx::Consumer do
     end
 
     expect(Bob._collected).to have_at_least(2).item
-    expect(Bob._collected).to have_at_most(8).item
   end
 
   def handle_errors
