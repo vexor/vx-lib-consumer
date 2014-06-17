@@ -27,6 +27,7 @@ module Vx
           consumer:   params.consumer_name,
           payload:    payload,
           properties: properties,
+          channel:    channel.id
         }
 
         with_middlewares :sub, instrumentation do
@@ -60,7 +61,7 @@ module Vx
           session.open
 
           ch = session.conn.create_channel
-          assign_error_handlers_to_channel(ch)
+          session.assign_error_handlers_to_channel(ch)
           ch.prefetch configuration.prefetch
 
           x = session.declare_exchange ch, params.exchange_name, params.exchange_options
@@ -78,11 +79,6 @@ module Vx
           end
 
           [ch, q]
-        end
-
-        def assign_error_handlers_to_channel(ch)
-          ch.on_uncaught_exception {|e, c| Consumer.exception_handler(e, consumer: c) }
-          ch.on_error {|e, c| Consumer.exception_handler(e, consumer: c) }
         end
 
     end

@@ -32,11 +32,12 @@ module Vx
       def call(*args)
         in_progress do
           @on_delivery.call(*args) if @on_delivery
+          sleep 0
         end
       end
 
       def cancel
-        instrument('cancel_consumer', consumer: vx_consumer_name)
+        instrument('cancel_consumer', consumer: vx_consumer_name, channel: channel.id)
         super
         channel.close unless channel.closed?
       end
