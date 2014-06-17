@@ -26,7 +26,7 @@ describe Vx::Consumer do
       its(:exchange_name)    { should eq 'bob_exch' }
       its(:exchange_options) { should eq(durable: false, auto_delete: true, type: :topic) }
       its(:queue_name)       { should eq 'bob_queue' }
-      its(:queue_options)    { should eq(exclusive: true, durable: false) }
+      its(:queue_options)    { should eq(durable: false, auto_delete: true) }
       its(:ack)              { should be_true }
       its(:routing_key)      { should be_nil }
       its(:content_type)     { should eq 'application/json' }
@@ -64,7 +64,7 @@ describe Vx::Consumer do
 
       Timeout.timeout(10) do
         loop do
-          break if Bob._collected.size == 90
+          break if Bob._collected.size >= 90
           sleep 0.1
         end
       end
@@ -119,11 +119,11 @@ describe Vx::Consumer do
     end
 
     sleep 0.1
-    Timeout.timeout(1) do
+    Timeout.timeout(5) do
       consumer.graceful_shutdown
     end
 
-    expect(Bob._collected).to have(1).item
+    expect(Bob._collected).to_not be_empty
   end
 
   it "running? should be true when consumer process task" do
@@ -143,6 +143,7 @@ describe Vx::Consumer do
       consumer.cancel
     end
 
+    sleep 0.1
     expect(consumer.running?).to be_false
   end
 

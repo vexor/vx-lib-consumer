@@ -40,9 +40,9 @@ module Vx
       def close
         if open?
           @@session_lock.synchronize do
-            instrument("closing_collection", info: conn_info)
+            instrument("closing_connection", info: conn_info)
 
-            instrument("close_collection", info: conn_info) do
+            instrument("close_connection", info: conn_info) do
               begin
                 conn.close
                 while conn.status != :closed
@@ -98,10 +98,23 @@ module Vx
         end
       end
 
-      def with_channel
+      def pub_channel
         assert_connection_is_open
 
-        conn.with_channel { |ch| yield ch }
+        key = :vx_consumer_session_pub_channel
+        ch  = Thread.current[key]
+
+        if ch and ch.closed?
+          ch = nil
+        end
+
+        unless ch
+          ch = conn.create_channel
+          assign_error_handlers_to_channel(ch)
+          ch
+        end
+
+        ch
       end
 
       def declare_exchange(ch, name, options = nil)
@@ -116,6 +129,11 @@ module Vx
 
         options ||= {}
         ch.queue name, options
+      end
+
+      def assign_error_handlers_to_channel(ch)
+        ch.on_uncaught_exception {|e, c| ::Vx::Consumer.exception_handler(e, consumer: c) }
+        ch.on_error {|e, c| ::Vx::Consumer.exception_handler(e, consumer: c) }
       end
 
       private

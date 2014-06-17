@@ -7,6 +7,7 @@ module Vx
           consumer:      self.class.params.consumer_name,
           properties:    properties,
           multiple:      multiple,
+          channel:       _channel.id
         }
         if _channel.open?
           _channel.ack delivery_info.delivery_tag, multiple
@@ -24,6 +25,7 @@ module Vx
           properties:    properties,
           multiple:      multiple,
           requeue:       requeue,
+          channel:       channel.id
         }
         if _channel.open?
           _channel.ack delivery_info.delivery_tag, multiple, requeue

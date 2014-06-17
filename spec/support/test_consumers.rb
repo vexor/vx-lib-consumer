@@ -14,7 +14,7 @@ class Bob
   include Vx::Consumer
 
   exchange 'bob_exch',  durable: false, auto_delete: true
-  queue    'bob_queue', exclusive: true, durable: false
+  queue    'bob_queue', durable: false, auto_delete: true
   ack
 
   @@m         = Mutex.new
