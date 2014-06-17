@@ -119,7 +119,7 @@ describe Vx::Consumer do
     end
 
     sleep 0.1
-    Timeout.timeout(5) do
+    Timeout.timeout(10) do
       consumer.graceful_shutdown
     end
 
