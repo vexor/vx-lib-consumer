@@ -5,7 +5,6 @@ class Alice
 
   content_type 'text/plain'
   routing_key 'mykey'
-
   fanout
 
 end

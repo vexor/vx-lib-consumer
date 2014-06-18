@@ -2,8 +2,8 @@ module Vx
   module Consumer
     module Subscribe
 
-      def subscribe
-        ch, q = bind
+      def subscribe(options = {})
+        ch, q = bind(options)
 
         subscriber = Subscriber.new(
           ch,
@@ -54,7 +54,8 @@ module Vx
           Serializer.unpack(properties[:content_type], payload, params.model)
         end
 
-        def bind
+        def bind(options = {})
+          qname = options[:queue] || params.queue_options
 
           instrumentation = {
             consumer: params.consumer_name
@@ -67,7 +68,7 @@ module Vx
           ch.prefetch configuration.prefetch
 
           x = session.declare_exchange ch, params.exchange_name, params.exchange_options
-          q = session.declare_queue ch, params.queue_name, params.queue_options
+          q = session.declare_queue ch, qname, params.queue_options
 
           instrumentation.merge!(
             exchange:         x.name,

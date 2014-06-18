@@ -52,7 +52,7 @@ describe Vx::Consumer do
   it "pub/sub in multithreaded environment" do
     handle_errors do
       cns = []
-      30.times do
+      30.times do |n|
         cns << Bob.subscribe
       end
 
