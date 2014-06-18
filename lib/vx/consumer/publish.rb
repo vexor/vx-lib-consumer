@@ -24,7 +24,7 @@ module Vx
         }
 
         with_middlewares :pub, instrumentation do
-          with_channel do |ch|
+          session.with_pub_channel do |ch|
             instrument("process_publishing", instrumentation.merge(channel: ch.id)) do
               encoded = encode_payload(payload, options[:content_type])
               x = session.declare_exchange ch, name, params.exchange_options
@@ -35,10 +35,6 @@ module Vx
       end
 
       private
-
-        def with_channel
-          yield session.pub_channel
-        end
 
         def encode_payload(payload, content_type)
           Serializer.pack(content_type, payload)

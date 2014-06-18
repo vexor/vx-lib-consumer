@@ -98,23 +98,36 @@ module Vx
         end
       end
 
-      def pub_channel
+      def with_pub_channel
+        key = :vx_consumer_session_pub_channel
+        if ch = Thread.current[key]
+          yield ch
+        else
+          conn.with_channel do |c|
+            yield c
+          end
+        end
+      end
+
+      def allocate_pub_channel
         assert_connection_is_open
 
         key = :vx_consumer_session_pub_channel
-        ch  = Thread.current[key]
 
-        if ch and ch.closed?
-          ch = nil
-        end
-
-        unless ch
+        if Thread.current[key]
+          yield
+        else
           ch = conn.create_channel
           assign_error_handlers_to_channel(ch)
-          ch
+          Thread.current[key] = ch
+          begin
+            yield
+          ensure
+            ch = Thread.current[key]
+            ch.close if ch.open?
+            Thread.current[key] = nil
+          end
         end
-
-        ch
       end
 
       def declare_exchange(ch, name, options = nil)

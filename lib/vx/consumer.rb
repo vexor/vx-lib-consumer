@@ -77,6 +77,10 @@ module Vx
         Consumer.session
       end
 
+      def allocate_pub_channel
+        Consumer.session.allocate_pub_channel { yield }
+      end
+
       def configuration
         Consumer.configuration
       end

@@ -33,7 +33,9 @@ module Vx
         with_middlewares :sub, instrumentation do
           instrument("start_processing", instrumentation)
           instrument("process", instrumentation) do
-            run_instance delivery_info, properties, payload, channel
+            allocate_pub_channel do
+              run_instance delivery_info, properties, payload, channel
+            end
           end
         end
       end
