@@ -70,7 +70,7 @@ describe Vx::Consumer do
       end
       cns.map(&:cancel)
 
-      expect(Bob._collected.map{|c| c["a"] }.sort).to eq((0...90).to_a)
+      expect(Bob._collected.map{|c| c["a"] }.uniq.sort).to eq((0...90).to_a)
     end
   end
 
