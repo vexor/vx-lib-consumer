@@ -52,8 +52,10 @@ module Vx
 
       def cancel
         instrument('cancel_consumer', consumer: vx_consumer_name, channel: channel.id)
-        super
-        channel.close unless channel.closed?
+        unless channel.closed?
+          super
+          channel.close unless channel.closed?
+        end
       end
 
       def join
