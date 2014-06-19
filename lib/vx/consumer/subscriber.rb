@@ -19,6 +19,20 @@ module Vx
         in_progress { cancel }
       end
 
+      def try_graceful_shutdown
+        if @lock.try_lock
+          begin
+            instrument('graceful_shutdown_consumer', consumer: vx_consumer_name)
+            cancel
+          ensure
+            @lock.unlock
+          end
+          true
+        else
+          false
+        end
+      end
+
       def in_progress
         @lock.synchronize do
           yield

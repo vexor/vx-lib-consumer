@@ -110,7 +110,7 @@ describe Vx::Consumer do
     expect(Bob._collected.map(&:values).flatten.sort).to eq [1,2]
   end
 
-  it "should work with graceful shutdown" do
+  it "should work with graceful_shutdown" do
     Bob.timeout = 1
 
     consumer = Bob.subscribe
@@ -124,6 +124,26 @@ describe Vx::Consumer do
     end
 
     expect(Bob._collected).to_not be_empty
+  end
+
+  it "should work with try_graceful_shutdown" do
+    Bob.timeout = 1
+
+    consumer = Bob.subscribe
+    1.times do |n|
+      Bob.publish a: n
+    end
+
+    sleep 0.1
+    expect(consumer.try_graceful_shutdown).to be_false
+
+    Timeout.timeout(2) do
+      while consumer.running?
+        sleep 0.1
+      end
+    end
+
+    expect(consumer.try_graceful_shutdown).to be_true
   end
 
   it "running? should be true when consumer process task" do
