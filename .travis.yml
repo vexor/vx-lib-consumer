@@ -4,10 +4,5 @@ services:
 rvm:
   - 2.0
   - 2.1
-  - jruby
-
-matrix:
-  allow_failures:
-    - rvm: jruby
 
 script: bundle exec rspec spec/ -b
