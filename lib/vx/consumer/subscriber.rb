@@ -15,8 +15,11 @@ module Vx
       end
 
       def graceful_shutdown
-        instrument('graceful_shutdown_consumer', consumer: vx_consumer_name)
-        in_progress { cancel }
+        instrument('try_graceful_shutdown_consumer', consumer: vx_consumer_name)
+        in_progress do
+          cancel
+          instrument('graceful_shutdown_consumer', consumer: vx_consumer_name)
+        end
       end
 
       def try_graceful_shutdown

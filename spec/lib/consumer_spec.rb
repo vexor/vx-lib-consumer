@@ -38,13 +38,16 @@ describe Vx::Consumer do
     sleep 1
     3.times {|n| Bob.publish("a" => n) }
 
-    Timeout.timeout(3) do
+    Timeout.timeout(5) do
       loop do
         break if Bob._collected.size == 3
         sleep 0.1
       end
     end
-    consumer.cancel
+
+    Timeout.timeout(3) do
+      consumer.graceful_shutdown
+    end
 
     expect(Bob._collected).to eq([{"a"=>0}, {"a"=>1}, {"a"=>2}])
   end
@@ -68,7 +71,10 @@ describe Vx::Consumer do
           sleep 0.1
         end
       end
-      cns.map(&:cancel)
+
+      Timeout.timeout(1) do
+        cns.map(&:graceful_shutdown)
+      end
 
       expect(Bob._collected.map{|c| c["a"] }.uniq.sort).to eq((0...90).to_a)
     end
