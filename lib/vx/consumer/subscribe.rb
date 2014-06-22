@@ -12,6 +12,7 @@ module Vx
           !params.ack
         )
         subscriber.vx_consumer_name = params.consumer_name
+        subscriber.queue_name       = q.name
 
         subscriber.on_delivery do |delivery_info, properties, payload|
           handle_delivery ch, delivery_info, properties, payload
@@ -55,7 +56,7 @@ module Vx
         end
 
         def bind(options = {})
-          qname = options[:queue] || params.queue_options
+          qname = options[:queue] || params.queue_name
 
           instrumentation = {
             consumer: params.consumer_name

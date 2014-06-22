@@ -7,7 +7,7 @@ module Vx
 
       include Instrument
 
-      attr_accessor :vx_consumer_name
+      attr_accessor :vx_consumer_name, :queue_name
 
       def initialize(*args)
         super(*args)
