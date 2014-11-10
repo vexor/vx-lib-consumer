@@ -52,6 +52,32 @@ describe Vx::Consumer do
     expect(Bob._collected).to eq([{"a"=>0}, {"a"=>1}, {"a"=>2}])
   end
 
+  it "start/stop many times" do
+    fn = lambda do |idx|
+      consumer = Bob.subscribe
+      sleep 1
+      3.times {|n| Bob.publish("a" => n + (3 * idx)) }
+
+      Timeout.timeout(5) do
+        loop do
+          break if Bob._collected.size == 3 + (3 * idx)
+          sleep 0.1
+        end
+      end
+      Timeout.timeout(3) do
+        consumer.graceful_shutdown
+      end
+
+      expect(consumer).to be_closed
+    end
+
+    10.times do |n|
+      fn.call(n)
+    end
+
+    expect(Bob._collected.flat_map(&:values)).to eq((0..29).to_a)
+  end
+
   it "pub/sub in multithreaded environment" do
     handle_errors do
       cns = []
