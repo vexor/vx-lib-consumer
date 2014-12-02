@@ -1,7 +1,7 @@
 require 'thread'
 
 class Alice
-  include Vx::Consumer
+  include Vx::Lib::Consumer
 
   content_type 'text/plain'
   routing_key 'mykey'
@@ -10,7 +10,7 @@ class Alice
 end
 
 class Bob
-  include Vx::Consumer
+  include Vx::Lib::Consumer
 
   exchange 'bob_exch',  durable: false, auto_delete: true
   queue    'bob_queue', durable: false, auto_delete: true

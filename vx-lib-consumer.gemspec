@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'vx/consumer/version'
+require 'vx/lib/consumer/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "vx-consumer"
-  spec.version       = Vx::Consumer::VERSION
+  spec.name          = "vx-lib-consumer"
+  spec.version       = Vx::Lib::Consumer::VERSION
   spec.authors       = ["Dmitry Galinsky"]
   spec.email         = ["dima.exe@gmail.com"]
   spec.summary       = %q{ summary }
