@@ -2,7 +2,7 @@ require 'json'
 require 'timeout'
 require 'spec_helper'
 
-describe Vx::Consumer do
+describe Vx::Lib::Consumer do
 
   before do
     Bob.timeout = 0.1
@@ -108,7 +108,7 @@ describe Vx::Consumer do
 
   it "should catch errors" do
     error = nil
-    Vx::Consumer.configure do |c|
+    Vx::Lib::Consumer.configure do |c|
       c.on_error do |e, env|
         error = [e, env]
       end
@@ -133,7 +133,7 @@ describe Vx::Consumer do
     th1 = bob1.wait_shutdown
     th2 = bob2.wait_shutdown
     sleep 0.2
-    Vx::Consumer.shutdown
+    Vx::Lib::Consumer.shutdown
 
     Timeout.timeout(1) do
       [th1, th2].map(&:join)
@@ -203,7 +203,7 @@ describe Vx::Consumer do
     begin
       yield
     rescue Exception => e
-      Vx::Consumer.exception_handler(e, {})
+      Vx::Lib::Consumer.exception_handler(e, {})
       raise e
     end
   end

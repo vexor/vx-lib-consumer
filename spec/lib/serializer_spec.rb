@@ -2,7 +2,7 @@ require 'json'
 require 'beefcake'
 require 'spec_helper'
 
-describe Vx::Consumer::Serializer do
+describe Vx::Lib::Consumer::Serializer do
   let(:s) { described_class }
 
   context "text/plain" do

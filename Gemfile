@@ -5,4 +5,5 @@ gemspec
 
 group :test do
   gem 'beefcake'
+  #gem 'memory_profiler'
 end

@@ -1,4 +1,4 @@
-# Vx::Consumer
+# Vx::Lib::Consumer
 
 TODO: Write a gem description
 
@@ -6,7 +6,7 @@ TODO: Write a gem description
 
 Add this line to your application's Gemfile:
 
-    gem 'vx-consumer'
+    gem 'vx-lib-consumer'
 
 And then execute:
 

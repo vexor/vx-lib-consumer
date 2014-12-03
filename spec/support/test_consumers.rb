@@ -1,16 +1,27 @@
 require 'thread'
 
 class Alice
-  include Vx::Consumer
+  include Vx::Lib::Consumer
 
   content_type 'text/plain'
   routing_key 'mykey'
   fanout
+end
 
+class Kenny
+  include Vx::Lib::Consumer
+
+  class << self
+    def m_kill(value)
+      "rep: #{value}"
+    end
+  end
+
+  rpc.action :kill, method(:m_kill)
 end
 
 class Bob
-  include Vx::Consumer
+  include Vx::Lib::Consumer
 
   exchange 'bob_exch',  durable: false, auto_delete: true
   queue    'bob_queue', durable: false, auto_delete: true

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Vx::Consumer::Session do
+describe Vx::Lib::Consumer::Session do
   let(:sess) { described_class.new }
   subject { sess }
 
