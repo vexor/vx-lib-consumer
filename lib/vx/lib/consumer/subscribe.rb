@@ -69,18 +69,31 @@ module Vx
             session.assign_error_handlers_to_channel(ch)
             ch.prefetch configuration.prefetch
 
-            x = session.declare_exchange ch, params.exchange_name, params.exchange_options
+            x_name = ''
+
+            if params.exchange_name != ''
+              x = session.declare_exchange ch, params.exchange_name, params.exchange_options
+              x_name = x.name
+            end
+
             q = session.declare_queue ch, qname, params.queue_options
 
             instrumentation.merge!(
-              exchange:         x.name,
-              queue:            q.name,
-              queue_options:    params.queue_options,
-              exchange_options: params.exchange_options,
-              bind:             params.bind_options
+              exchange:      x_name,
+              queue:         q.name,
+              queue_options: params.queue_options,
             )
-            instrument("bind_queue", instrumentation) do
-              q.bind(x, params.bind_options)
+
+            if x_name != ''
+              instrumentation.merge!(
+                exchange_options: params.exchange_options,
+                bind: params.bind_options
+              )
+              instrument("bind_queue", instrumentation) do
+                q.bind(x, params.bind_options)
+              end
+            else
+              instrument("using_default_exchange", instrumentation)
             end
 
             [ch, q]

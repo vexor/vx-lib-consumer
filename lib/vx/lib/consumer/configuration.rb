@@ -5,6 +5,9 @@ module Vx
     module Consumer
       class Configuration
 
+        DEBUG = 'VX_CONSUMER_DEBUG'.freeze
+
+
         attr_accessor :default_exchange_options, :default_queue_options,
           :default_publish_options, :default_exchange_type, :pool_timeout,
           :heartbeat, :spawn_attempts, :content_type, :instrumenter, :debug,
@@ -15,7 +18,7 @@ module Vx
         end
 
         def debug?
-          ENV['VX_CONSUMER_DEBUG']
+          @debug ||= ENV[DEBUG]
         end
 
         def use(target, middleware, *args)

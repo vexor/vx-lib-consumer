@@ -1,7 +1,5 @@
 require File.expand_path '../../lib/vx/lib/consumer', __FILE__
 
-require 'rspec/autorun'
-
 Dir[File.expand_path("../..", __FILE__) + "/spec/support/**.rb"].each {|f| require f}
 
 ENV['VX_CONSUMER_DEBUG'] = '1'

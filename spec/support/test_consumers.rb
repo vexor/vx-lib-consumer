@@ -6,7 +6,18 @@ class Alice
   content_type 'text/plain'
   routing_key 'mykey'
   fanout
+end
 
+class Kenny
+  include Vx::Lib::Consumer
+
+  class << self
+    def m_kill(value)
+      "rep: #{value}"
+    end
+  end
+
+  rpc.action :kill, method(:m_kill)
 end
 
 class Bob

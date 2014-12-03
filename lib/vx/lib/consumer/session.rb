@@ -134,7 +134,9 @@ module Vx
         def declare_exchange(ch, name, options = nil)
           assert_connection_is_open
 
-          options  ||= {}
+          options ||= {}
+          options = {} if name == ''.freeze
+
           ch.exchange name, options
         end
 

@@ -51,7 +51,17 @@ module Vx
         end
 
         def consumer_name
-          consumer_class.to_s
+          @consumer_name ||= consumer_class.to_s
+        end
+
+        def consumer_id
+          @consumer_id ||=
+            consumer_name.gsub(/::/, '/').
+              gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+              gsub(/([a-z\d])([A-Z])/,'\1_\2').
+              tr("-", "_").
+              downcase.
+              gsub("_consumer$", '')
         end
 
         private

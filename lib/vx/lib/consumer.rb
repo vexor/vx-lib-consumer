@@ -10,6 +10,7 @@
   publish
   subscribe
   ack
+  rpc
 }.each do |f|
   require File.expand_path("../consumer/#{f}", __FILE__)
 end
@@ -27,6 +28,7 @@ module Vx
         base.extend Instrument
         base.extend Publish
         base.extend Subscribe
+        base.extend Rpc
         base.send :include, Ack
         base.send :include, Instrument
       end
@@ -47,6 +49,10 @@ module Vx
 
         def topic
           params.exchange_type = :topic
+        end
+
+        def direct
+          params.exchange_type = :direct
         end
 
         def queue(*args)
