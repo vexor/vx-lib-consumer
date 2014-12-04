@@ -1,4 +1,4 @@
-require 'vx/common/rack/builder'
+require 'vx/lib/rack/builder'
 
 module Vx
   module Lib
@@ -44,8 +44,8 @@ module Vx
           @on_error              = ->(e, env){ nil }
 
           @builders = {
-            pub: Vx::Common::Rack::Builder.new,
-            sub: Vx::Common::Rack::Builder.new
+            pub: Vx::Lib::Rack::Builder.new,
+            sub: Vx::Lib::Rack::Builder.new
           }
 
           @default_exchange_options = {
