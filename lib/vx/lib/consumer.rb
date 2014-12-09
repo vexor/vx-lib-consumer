@@ -2,7 +2,6 @@
   version
   error
   configuration
-  instrument
   session
   params
   serializer
@@ -25,12 +24,10 @@ module Vx
 
       def self.included(base)
         base.extend ClassMethods
-        base.extend Instrument
         base.extend Publish
         base.extend Subscribe
         base.extend Rpc
         base.send :include, Ack
-        base.send :include, Instrument
       end
 
       module ClassMethods

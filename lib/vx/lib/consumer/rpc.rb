@@ -97,7 +97,7 @@ module Vx
               payload = ::JSON.parse(payload)
             end
 
-            instrumentation = {
+            env = {
               consumer:   consumer.params.consumer_name,
               queue:      @q.name,
               rpc:        REP,
@@ -106,18 +106,15 @@ module Vx
               properties: properties
             }
 
-            consumer.with_middlewares :sub, instrumentation do
-              consumer.instrument(:start_processing, instrumentation)
-              consumer.instrument(:process, instrumentation) do
-                call_id = properties[:correlation_id]
-                c = @mutex.synchronize{ @await.delete(call_id) }
-                if c
-                  @mutex.synchronize do
-                    @await[call_id] = [properties, payload]
-                  end
-                  @wakeup.synchronize do
-                    c.signal
-                  end
+            consumer.with_middlewares :sub, env do
+              call_id = properties[:correlation_id]
+              c = @mutex.synchronize{ @await.delete(call_id) }
+              if c
+                @mutex.synchronize do
+                  @await[call_id] = [properties, payload]
+                end
+                @wakeup.synchronize do
+                  c.signal
                 end
               end
             end
@@ -141,7 +138,7 @@ module Vx
               consumer.session.with_pub_channel do |ch|
                 exch = ch.exchange RPC_EXCHANGE_NAME
 
-                instrumentation = {
+                env = {
                   payload:     message,
                   rpc:         REQ,
                   exchange:    exch.name,
@@ -152,16 +149,14 @@ module Vx
 
                 @mutex.synchronize { @await[call_id] = cond }
 
-                consumer.with_middlewares :pub, instrumentation do
-                  consumer.instrument(:process_publishing, instrumentation) do
-                    exch.publish(
-                      message.to_json,
-                      routing_key:    routing_key,
-                      correlation_id: call_id,
-                      reply_to:       q.name,
-                      content_type:   JSON_CONTENT_TYPE
-                    )
-                  end
+                consumer.with_middlewares :pub, env do
+                  exch.publish(
+                    message.to_json,
+                    routing_key:    routing_key,
+                    correlation_id: call_id,
+                    reply_to:       q.name,
+                    content_type:   JSON_CONTENT_TYPE
+                  )
                 end
 
                 @wakeup.synchronize{
@@ -192,13 +187,6 @@ module Vx
           end
 
           def cancel
-            instrumentation = {
-              consumer: consumer.params.consumer_name,
-              rpc:      'consume'
-            }
-
-            consumer.instrument('cancel_consumer', instrumentation)
-
             if subscriber?
               @subscriber.cancel
               @subscriber = nil

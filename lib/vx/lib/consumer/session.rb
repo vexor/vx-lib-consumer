@@ -6,8 +6,6 @@ module Vx
     module Consumer
       class Session
 
-        include Instrument
-
         @@session_lock  = Mutex.new
 
         @@shutdown_lock = Mutex.new
@@ -41,17 +39,13 @@ module Vx
         def close
           if open?
             @@session_lock.synchronize do
-              instrument("closing_connection", info: conn_info)
-
-              instrument("close_connection", info: conn_info) do
-                begin
-                  conn.close
-                  while conn.status != :closed
-                    sleep 0.01
-                  end
-                rescue Bunny::ChannelError, Bunny::ClientTimeout => e
-                  Consumer.exception_handler(e, {})
+              begin
+                conn.close
+                while conn.status != :closed
+                  sleep 0.01
                 end
+              rescue Bunny::ChannelError, Bunny::ClientTimeout => e
+                Consumer.exception_handler(e, {})
               end
               @conn = nil
             end
@@ -71,15 +65,9 @@ module Vx
                 automatically_recover: false
               )
 
-              instrumentation = { info: conn_info }.merge(options)
-
-              instrument("start_connecting", instrumentation)
-
-              instrument("connect", instrumentation) do
-                conn.start
-                while conn.connecting?
-                  sleep 0.01
-                end
+              conn.start
+              while conn.connecting?
+                sleep 0.01
               end
             end
           end

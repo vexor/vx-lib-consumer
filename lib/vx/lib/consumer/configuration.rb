@@ -10,7 +10,7 @@ module Vx
 
         attr_accessor :default_exchange_options, :default_queue_options,
           :default_publish_options, :default_exchange_type, :pool_timeout,
-          :heartbeat, :spawn_attempts, :content_type, :instrumenter, :debug,
+          :heartbeat, :spawn_attempts, :content_type, :debug,
           :on_error, :builders, :prefetch
 
         def initialize
@@ -40,7 +40,6 @@ module Vx
           @content_type          = 'application/json'
           @prefetch              = 1
 
-          @instrumenter          = nil
           @on_error              = ->(e, env){ nil }
 
           @builders = {
