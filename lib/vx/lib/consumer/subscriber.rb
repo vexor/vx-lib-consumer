@@ -6,8 +6,6 @@ module Vx
     module Consumer
       class Subscriber < Bunny::Consumer
 
-        include Instrument
-
         attr_accessor :vx_consumer_name, :queue_name
 
         def initialize(*args)
@@ -16,17 +14,14 @@ module Vx
         end
 
         def graceful_shutdown
-          instrument('try_graceful_shutdown_consumer', consumer: vx_consumer_name)
           in_progress do
             cancel
-            instrument('graceful_shutdown_consumer', consumer: vx_consumer_name)
           end
         end
 
         def try_graceful_shutdown
           if @lock.try_lock
             begin
-              instrument('graceful_shutdown_consumer', consumer: vx_consumer_name)
               cancel
             ensure
               @lock.unlock
@@ -55,7 +50,6 @@ module Vx
         end
 
         def cancel
-          instrument('cancel_consumer', consumer: vx_consumer_name, channel: channel.id)
           unless closed?
             super
             channel.close unless closed?

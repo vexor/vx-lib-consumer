@@ -25,19 +25,16 @@ module Vx
         def handle_delivery(channel, delivery_info, properties, payload)
           payload = decode_payload properties, payload
 
-          instrumentation = {
+          env = {
             consumer:   params.consumer_name,
             payload:    payload,
             properties: properties,
             channel:    channel.id
           }
 
-          with_middlewares :sub, instrumentation do
-            instrument("start_processing", instrumentation)
-            instrument("process", instrumentation) do
-              allocate_pub_channel do
-                run_instance delivery_info, properties, payload, channel
-              end
+          with_middlewares :sub, env do
+            allocate_pub_channel do
+              run_instance delivery_info, properties, payload, channel
             end
           end
         end
@@ -59,10 +56,6 @@ module Vx
           def bind(options = {})
             qname = options[:queue] || params.queue_name
 
-            instrumentation = {
-              consumer: params.consumer_name
-            }
-
             session.open
 
             ch = session.conn.create_channel
@@ -78,22 +71,8 @@ module Vx
 
             q = session.declare_queue ch, qname, params.queue_options
 
-            instrumentation.merge!(
-              exchange:      x_name,
-              queue:         q.name,
-              queue_options: params.queue_options,
-            )
-
             if x_name != ''
-              instrumentation.merge!(
-                exchange_options: params.exchange_options,
-                bind: params.bind_options
-              )
-              instrument("bind_queue", instrumentation) do
-                q.bind(x, params.bind_options)
-              end
-            else
-              instrument("using_default_exchange", instrumentation)
+              q.bind(x, params.bind_options)
             end
 
             [ch, q]

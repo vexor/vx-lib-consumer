@@ -17,20 +17,18 @@ module Vx
 
           name = params.exchange_name
 
-          instrumentation = {
+          env = {
             payload:     payload,
             exchange:    name,
             consumer:    params.consumer_name,
             properties:  options,
           }
 
-          with_middlewares :pub, instrumentation do
+          with_middlewares :pub, env do
             session.with_pub_channel do |ch|
-              instrument(:process_publishing, instrumentation.merge(channel: ch.id)) do
-                encoded = encode_payload(payload, options[:content_type])
-                x = session.declare_exchange ch, name, params.exchange_options
-                x.publish encoded, options
-              end
+              encoded = encode_payload(payload, options[:content_type])
+              x = session.declare_exchange ch, name, params.exchange_options
+              x.publish encoded, options
             end
           end
         end
