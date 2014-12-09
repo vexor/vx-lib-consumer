@@ -62,7 +62,8 @@ module Vx
               @conn ||= Bunny.new(
                 nil,       # from ENV['RABBITMQ_URL']
                 heartbeat: Consumer.configuration.heartbeat,
-                automatically_recover: false
+                automatically_recover: false,
+                logger:    Consumer.configuration.logger
               )
 
               conn.start
