@@ -59,10 +59,18 @@ module Vx
             unless open?
               resume
 
+              bunny_options = {
+                heartbeat: Consumer.configuration.heartbeat,
+                automatically_recover: false,
+              }
+
+              if Consumer.configuration.logger
+                bunny_options.merge!(logger: Consumer.configuration.logger)
+              end
+
               @conn ||= Bunny.new(
                 nil,       # from ENV['RABBITMQ_URL']
-                heartbeat: Consumer.configuration.heartbeat,
-                automatically_recover: false
+                bunny_options
               )
 
               conn.start

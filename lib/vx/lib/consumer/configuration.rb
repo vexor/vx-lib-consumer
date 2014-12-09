@@ -11,7 +11,7 @@ module Vx
         attr_accessor :default_exchange_options, :default_queue_options,
           :default_publish_options, :default_exchange_type, :pool_timeout,
           :heartbeat, :spawn_attempts, :content_type, :debug,
-          :on_error, :builders, :prefetch
+          :on_error, :builders, :prefetch, :logger
 
         def initialize
           reset!

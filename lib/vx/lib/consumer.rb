@@ -31,6 +31,8 @@ module Vx
       end
 
       module ClassMethods
+        attr_accessor :logger
+
         def params
           @params ||= Params.new(self.name)
         end
