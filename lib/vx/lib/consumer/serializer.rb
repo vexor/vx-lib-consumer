@@ -1,3 +1,5 @@
+require 'oj'
+
 module Vx
   module Lib
     module Consumer
@@ -56,18 +58,29 @@ module Vx
 
         define 'application/json' do
           pack do |body|
-            if body.is_a?(String)
-              body
-            else
-              ::JSON.dump body
+            encoded =
+              if body.is_a?(String)
+                body
+              else
+                ::Oj.dump(body, mode: :compat)
+              end
+
+            unless encoded.valid_encoding?
+              encoded.encode!('UTF-8', invalid: :replace)
             end
+
+            encoded
           end
 
           unpack do |payload, model|
+            unless payload.valid_encoding?
+              payload.encode!('UTF-8', invalid: :replace)
+            end
+
             if model && model.respond_to?(:from_json)
               model.from_json payload
             else
-              ::JSON.parse(payload)
+              ::Oj.load(payload)
             end
           end
         end

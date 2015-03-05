@@ -1,4 +1,4 @@
-require 'json'
+require 'oj'
 require 'timeout'
 require 'spec_helper'
 
@@ -120,7 +120,7 @@ describe Vx::Lib::Consumer do
     sleep 0.1
     consumer.cancel
 
-    expect(error[0]).to be_an_instance_of(JSON::ParserError)
+    expect(error[0]).to be_an_instance_of(Oj::ParseError)
     expect(error[1][:consumer]).to_not be_nil
   end
 

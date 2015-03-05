@@ -7,7 +7,6 @@ module Vx
 
         DEBUG = 'VX_CONSUMER_DEBUG'.freeze
 
-
         attr_accessor :default_exchange_options, :default_queue_options,
           :default_publish_options, :default_exchange_type, :pool_timeout,
           :heartbeat, :spawn_attempts, :content_type, :debug,

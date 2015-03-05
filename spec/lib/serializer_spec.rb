@@ -27,6 +27,22 @@ describe Vx::Lib::Consumer::Serializer do
     it "should unpack payload" do
       expect(s.unpack('application/json', payload.to_json, nil)).to eq("a"=>1)
     end
+
+    it "should pack invalid unicode" do
+      payload = { a: "Le Caf\xc3\xa9 \xa9" }
+      expect(payload[:a]).to_not be_valid_encoding
+      json = s.pack('application/json', payload)
+      expect(json).to be_valid_encoding
+      expect(json).to eq "{\"a\":\"Le Café �\"}"
+    end
+
+    it "should unpack invalid unicode" do
+      payload = "{\"a\":\"Le Café \xA9\"}"
+      expect(payload).to_not be_valid_encoding
+      payload = s.unpack('application/json', payload, nil)
+      expect(payload).to eq("a" => "Le Café �")
+      expect(payload["a"]).to be_valid_encoding
+    end
   end
 
   context "application/x-protobuf" do
