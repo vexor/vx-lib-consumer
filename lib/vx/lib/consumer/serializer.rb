@@ -36,6 +36,8 @@ module Vx
           def pack(content_type, body)
             if fmt = lookup(content_type)
               fmt.pack.call(body)
+            else
+              body
             end
           end
 

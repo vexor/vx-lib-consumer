@@ -56,4 +56,11 @@ describe Vx::Lib::Consumer::Serializer do
       expect(s.unpack('application/x-protobuf', payload.encode.to_s, BeefcakeTestMessage)).to eq payload
     end
   end
+
+  context "none" do
+    let(:payload) { "body" }
+    it "should pack" do
+      expect(s.pack("none", payload)).to eq payload
+    end
+  end
 end
